@@ -1,41 +1,24 @@
 from typing import Optional
 from fastapi import APIRouter, Depends
-from sqlmodel import Session, select
+from sqlmodel import Session
 from database import get_session
-from models import Link
 from schemas import LinkCreate, LinkRead
-from services import LinkScraperService
+from services import LinkService
 
 router = APIRouter(prefix="/links", tags=["Links"])
 
 @router.post("/", response_model=LinkRead)
-async def create_link(link_input: LinkCreate, session: Session = Depends(get_session)):
-    # Mantivemos igual: chama o scraper, cria o objeto e salva
-    title_extracted = await LinkScraperService.extract_title(link_input.url)
-    
-    new_link = Link(url=str(link_input.url), title=title_extracted)
-    
-    session.add(new_link)
-    session.commit()
-    session.refresh(new_link)
-    
-    return new_link
+async def create_link(
+    link_input: LinkCreate, 
+    session: Session = Depends(get_session)
+):
+    # O Controller apenas repassa para o Service
+    return await LinkService.create_link(session=session, url=link_input.url)
 
 @router.get("/", response_model=list[LinkRead])
 def list_links(
-    q: Optional[str] = None,  # Query Param: Aceita ?q=valor (opcional)
+    q: Optional[str] = None, 
     session: Session = Depends(get_session)
 ):
-    """
-    Lista todos os links.
-    Se o parametro 'q' for passado, filtra pelo título.
-    """
-    statement = select(Link)
-    
-    # Se o usuario mandou algo no 'q', a gente filtra
-    if q:
-        # Busca onde o titulo CONTEM o texto (CASE INSENSITIVE na maioria dos bancos)
-        statement = statement.where(Link.title.contains(q))
-    
-    results = session.exec(statement).all()
-    return results
+    # O Controller nao faz query SQL, ele pede os dados prontos
+    return LinkService.list_links(session=session, search_term=q)
