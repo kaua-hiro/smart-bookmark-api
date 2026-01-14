@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Session, select
 from database import create_db_and_tables, get_session
 from models import Link
-from utils import get_page_title
+from services import get_page_title
 
 app = FastAPI()
 
