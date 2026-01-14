@@ -1,6 +1,7 @@
 import httpx
 from bs4 import BeautifulSoup
 
+
 class LinkScraperService:
     @staticmethod
     async def extract_title(url: str) -> str:
@@ -17,7 +18,7 @@ class LinkScraperService:
                 if response.status_code >= 400:
                     return "Site inacessível"
 
-                soup = BeautifulSoup(response.text, 'html.parser')
+                soup = BeautifulSoup(response.text, "html.parser")
                 if soup.title and soup.title.string:
                     return soup.title.string.strip()
                 return "Sem título identificado"

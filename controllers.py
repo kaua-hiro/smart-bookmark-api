@@ -7,6 +7,7 @@ from services import LinkScraperService
 
 router = APIRouter(prefix="/links", tags=["Links"])
 
+
 @router.post("/", response_model=LinkRead)
 async def create_link(link_input: LinkCreate, session: Session = Depends(get_session)):
     # 1. Chama o Service para pegar a logica (Scraping)
@@ -21,6 +22,7 @@ async def create_link(link_input: LinkCreate, session: Session = Depends(get_ses
     session.refresh(new_link)
 
     return new_link
+
 
 @router.get("/", response_model=list[LinkRead])
 def list_links(session: Session = Depends(get_session)):
